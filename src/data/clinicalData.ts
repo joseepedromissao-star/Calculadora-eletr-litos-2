@@ -1,4 +1,4 @@
-import { CalculatorMeta, InfectionTopography, AntimicrobialScheme } from '../types';
+import { CalculatorMeta, InfectionTopography, PathologyScheme } from '../types';
 
 export const CALCULATORS_LIST: CalculatorMeta[] = [
   {
@@ -62,302 +62,304 @@ export const CALCULATORS_LIST: CalculatorMeta[] = [
     title: 'Antimicrobianos e Ajuste Renal (TFG)',
     shortTitle: 'Antimicrobianos & Renal',
     category: 'Infectologia & Renal',
-    description: 'Taxa de Filtração Glomerular (Cockcroft-Gault / Schwartz pediátrico) com condutas empíricas por topografia e ajustes para ClCr < 50 mL/min.',
+    description: 'Taxa de Filtração Glomerular (Cockcroft-Gault / Schwartz pediátrico) com patologias infecciosas e antibióticos referenciados com ajuste renal.',
     badge: 'TFG / Cockcroft / Schwartz'
   },
 ];
 
-export const TOPOGRAPHY_MAP: Record<InfectionTopography, { title: string; subtitle: string; icon: string; schemes: AntimicrobialScheme[] }> = {
+export interface TopographyDefinition {
+  title: string;
+  subtitle: string;
+  patologias: PathologyScheme[];
+}
+
+export const TOPOGRAPHY_MAP: Record<InfectionTopography, TopographyDefinition> = {
   '1': {
     title: 'Olhos',
     subtitle: 'Infecções oculares e periorbitárias graves',
-    icon: 'Eye',
-    schemes: [
+    patologias: [
       {
         id: 'olhos-conjuntivite',
         nome: 'Conjuntivite Neonatal',
-        foco: 'Neisseria gonorrhoeae / Chlamydia trachomatis em neonatos',
-        dosePadrao: 'Ceftriaxona 25-50 mg/kg EV dose única (máx: 125 mg) + Azitromicina 20 mg/kg/dia VO 24/24h por 3 dias.',
-        doseAjusteRenal: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Ceftriaxona + Azitromicina)',
-        farmacos: ['Ceftriaxona', 'Azitromicina'],
-        observacoes: 'Irrigação ocular contínua com SF 0,9%. Avaliar também tratamento materno e do parceiro.',
-        detalhesAjuste: [
+        subtipo: 'Neonato',
+        foco: 'Neisseria gonorrhoeae / Chlamydia trachomatis em recém-nascidos',
+        dosePadraoTexto: 'Ceftriaxona 25-50mg/kg EV dose única (máx: 125mg) + Azitromicina 20mg/kg/dia VO 24/24h por 3 dias.',
+        doseAjusteRenalTexto: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Ceftriaxona + Azitromicina)',
+        antibioticosRecomendados: [
           {
-            farmaco: 'Ceftriaxona',
-            clcrFaixas: [
-              { faixa: 'ClCr ≥ 10 mL/min', dose: 'Dose habitual (eliminação biliar compensatória)' },
-              { faixa: 'ClCr < 10 mL/min', dose: 'Máximo 2g/dia (reduzir se coexistir disfunção hepática)' },
-            ]
+            id: 'ceftriaxona-conj',
+            nome: 'Ceftriaxona',
+            dosePadrao: { valor: '50', unidade: 'mg/kg', horario: 'Dose única', via: 'EV', diluente: '50 mL SF 0,9%', tempo: '30 min' },
+            doseRenal: { valor: '50', unidade: 'mg/kg', horario: 'Dose única', via: 'EV', diluente: '50 mL SF 0,9%', tempo: '30 min', obs: 'Dose única de até 125mg. Eliminação mista (biliar e renal).' }
           },
           {
-            farmaco: 'Azitromicina',
-            clcrFaixas: [
-              { faixa: 'Qualquer ClCr', dose: 'Não requer ajuste de dose habitual' }
-            ]
+            id: 'azitromicina-conj',
+            nome: 'Azitromicina',
+            dosePadrao: { valor: '20', unidade: 'mg/kg', horario: '24/24h', via: 'VO', diluente: 'Puro / Suspensão oral', tempo: 'VO por 3 dias' },
+            doseRenal: { valor: '20', unidade: 'mg/kg', horario: '24/24h', via: 'VO', diluente: 'Puro / Suspensão oral', tempo: 'VO por 3 dias', obs: 'Eliminação hepática/biliar. Não requer ajuste renal.' }
           }
-        ]
+        ],
+        observacoes: 'Irrigação ocular abundante com SF 0,9%. Tratar mãe e parceiro.'
       },
       {
         id: 'olhos-celulite',
         nome: 'Celulite Orbital (Pós-septal)',
-        foco: 'S. aureus (incluindo MRSA comunitário), Streptococcus spp., anaeróbios',
-        dosePadrao: 'Ceftriaxona 2g EV 1x/dia + Clindamicina 600mg EV 6/6h.',
-        doseAjusteRenal: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Ceftriaxona + Clindamicina)',
-        farmacos: ['Ceftriaxona', 'Clindamicina'],
-        observacoes: 'Emergência oftalmológica. Solicitar TC de órbitas e seios da face urgente. Risco de trombose de seio cavernoso.',
-        detalhesAjuste: [
+        subtipo: 'Emergência Oftalmológica',
+        foco: 'S. aureus, Streptococcus spp., anaeróbios de seios da face',
+        dosePadraoTexto: 'Ceftriaxona 2g EV 1x/dia + Clindamicina 600mg EV 6/6h.',
+        doseAjusteRenalTexto: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Ceftriaxona + Clindamicina)',
+        antibioticosRecomendados: [
           {
-            farmaco: 'Ceftriaxona',
-            clcrFaixas: [
-              { faixa: 'ClCr ≥ 10 mL/min', dose: '2g EV 24/24h (Dose plena)' },
-              { faixa: 'ClCr < 10 mL/min', dose: '1g a 2g EV 24/24h (monitorar toxicidade)' }
-            ]
+            id: 'ceftriaxona-cel',
+            nome: 'Ceftriaxona',
+            dosePadrao: { valor: '2', unidade: 'g', horario: '24/24h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min' },
+            doseRenal: { valor: '1', unidade: 'g', horario: '24/24h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min', obs: 'Se ClCr < 10 mL/min com disfunção hepática associada, reduzir para 1g.' }
           },
           {
-            farmaco: 'Clindamicina',
-            clcrFaixas: [
-              { faixa: 'Qualquer ClCr', dose: 'Metabolismo predominantemente hepático. Não necessita ajuste renal direto.' }
-            ]
+            id: 'clindamicina-cel',
+            nome: 'Clindamicina',
+            dosePadrao: { valor: '600', unidade: 'mg', horario: '6/6h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min' },
+            doseRenal: { valor: '600', unidade: 'mg', horario: '6/6h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min', obs: 'Metabolismo hepático predominante. Dose habitual mantida.' }
           }
-        ]
+        ],
+        observacoes: 'Emergência oftalmológica com risco de trombose do seio cavernoso. Solicitar TC de órbitas.'
       }
     ]
   },
   '2': {
     title: 'Pele e Partes Moles',
     subtitle: 'Celulite não complicada e infecções complexas em extremidades',
-    icon: 'Layers',
-    schemes: [
+    patologias: [
       {
         id: 'pele-celulite',
-        nome: 'Celulite e Erisipela',
+        nome: 'Celulite / Erisipela',
+        subtipo: 'Infecção Cutânea',
         foco: 'Streptococcus pyogenes e S. aureus sensível (MSSA)',
-        dosePadrao: 'Oxacilina 2g EV 4/4h; OU Cefalotina 1g EV 6/6h; OU Cefalexina 500mg 2cp (1g) VO 6/6h.',
-        doseAjusteRenal: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Oxacilina ou Cefalotina)',
-        farmacos: ['Oxacilina', 'Cefalotina', 'Cefalexina'],
-        observacoes: 'Demarcar a borda do eritema com caneta dérmica para avaliar evolução clínica em 24-48h.',
-        detalhesAjuste: [
+        dosePadraoTexto: 'Oxacilina 2g EV 4/4h; OU Cefalotina 1g EV 6/6h; OU Cefalexina 500mg 2cp VO 6/6h.',
+        doseAjusteRenalTexto: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Oxacilina ou Cefalotina)',
+        antibioticosRecomendados: [
           {
-            farmaco: 'Oxacilina',
-            clcrFaixas: [
-              { faixa: 'ClCr > 10 mL/min', dose: '2g EV 4/4h (eliminação mista)' },
-              { faixa: 'ClCr ≤ 10 mL/min', dose: '1g a 2g EV 4/4h a 6/6h (máximo 12g/dia)' }
-            ]
+            id: 'oxacilina-cel',
+            nome: 'Oxacilina',
+            dosePadrao: { valor: '2', unidade: 'g', horario: '4/4h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min' },
+            doseRenal: { valor: '1.5', unidade: 'g', horario: '6/6h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min', obs: 'Se ClCr ≤ 10 mL/min: 1g a 2g 6/6h (máx 12g/dia).' }
           },
           {
-            farmaco: 'Cefalotina',
-            clcrFaixas: [
-              { faixa: 'ClCr 50-80 mL/min', dose: '1g EV 6/6h' },
-              { faixa: 'ClCr 10-50 mL/min', dose: '500mg a 1g EV 8/8h a 12/12h' },
-              { faixa: 'ClCr < 10 mL/min', dose: '500mg EV 12/12h a 24/24h' }
-            ]
+            id: 'cefalotina-cel',
+            nome: 'Cefalotina',
+            dosePadrao: { valor: '1', unidade: 'g', horario: '6/6h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min' },
+            doseRenal: { valor: '1', unidade: 'g', horario: '8/8h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min', obs: 'ClCr 10-50 mL/min: estender intervalo para 8/8h a 12/12h.' }
           },
           {
-            farmaco: 'Cefalexina (VO)',
-            clcrFaixas: [
-              { faixa: 'ClCr 10-50 mL/min', dose: '500mg VO 8/8h a 12/12h' },
-              { faixa: 'ClCr < 10 mL/min', dose: '250mg a 500mg VO 12/12h a 24/24h' }
-            ]
+            id: 'cefalexina-cel',
+            nome: 'Cefalexina (VO)',
+            dosePadrao: { valor: '1', unidade: 'g', horario: '6/6h', via: 'VO', diluente: 'Com água', tempo: 'VO' },
+            doseRenal: { valor: '500', unidade: 'mg', horario: '8/8h', via: 'VO', diluente: 'Com água', tempo: 'VO', obs: 'ClCr 10-50 mL/min: 500mg 8/8h a 12/12h.' }
           }
-        ]
+        ],
+        observacoes: 'Demarcar área do eritema com caneta dérmica para avaliar evolução em 24-48h.'
       },
       {
         id: 'pele-pe-diabetico',
         nome: 'Pé Diabético Moderado (Polimicrobiano)',
+        subtipo: 'Infecção Mista',
         foco: 'Gram-positivos, bacilos Gram-negativos e anaeróbios',
-        dosePadrao: 'Amoxicilina-Clavulanato 500/125mg VO 8/8h OU Ceftriaxone 2g EV 24/24h + Metronidazol 500mg EV 8/8h (21-28 dias).',
-        doseAjusteRenal: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Amoxicilina-Clavulanato ou Ceftriaxone + Metronidazol)',
-        farmacos: ['Amoxicilina-Clavulanato', 'Ceftriaxona', 'Metronidazol'],
-        observacoes: 'Desbridamento mecânico e alívio de pressão (offloading) são fundamentais.',
-        detalhesAjuste: [
+        dosePadraoTexto: 'Amoxicilina-Clavulanato 500/125mg VO 8/8h OU Ceftriaxone 2g EV + Metronidazol 500mg EV 8/8h (21-28 dias).',
+        doseAjusteRenalTexto: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Amoxicilina-Clavulanato ou Ceftriaxone + Metronidazol)',
+        antibioticosRecomendados: [
           {
-            farmaco: 'Amoxicilina + Clavulanato (VO)',
-            clcrFaixas: [
-              { faixa: 'ClCr 10-30 mL/min', dose: '500/125mg VO 12/12h (evitar formulação 875mg)' },
-              { faixa: 'ClCr < 10 mL/min', dose: '500/125mg VO 24/24h' },
-              { faixa: 'Hemodiálise', dose: '500/125mg após sessão + 500/125mg 24/24h' }
-            ]
+            id: 'amox-clav-pe',
+            nome: 'Amoxicilina + Clavulanato',
+            dosePadrao: { valor: '500/125', unidade: 'mg', horario: '8/8h', via: 'VO', diluente: 'Com água', tempo: 'VO' },
+            doseRenal: { valor: '500/125', unidade: 'mg', horario: '12/12h', via: 'VO', diluente: 'Com água', tempo: 'VO', obs: 'ClCr 10-30 mL/min: 500/125mg 12/12h (evitar formulação 875mg).' }
           },
           {
-            farmaco: 'Metronidazol',
-            clcrFaixas: [
-              { faixa: 'ClCr ≥ 10 mL/min', dose: '500mg EV 8/8h' },
-              { faixa: 'ClCr < 10 mL/min', dose: '250mg a 500mg EV 12/12h (acúmulo de metabólitos ativos)' }
-            ]
+            id: 'ceftriaxona-pe',
+            nome: 'Ceftriaxona',
+            dosePadrao: { valor: '2', unidade: 'g', horario: '24/24h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min' },
+            doseRenal: { valor: '2', unidade: 'g', horario: '24/24h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min', obs: 'Dose plena mantida exceto na falência hepatorrenal extrema.' }
+          },
+          {
+            id: 'metronidazol-pe',
+            nome: 'Metronidazol',
+            dosePadrao: { valor: '500', unidade: 'mg', horario: '8/8h', via: 'EV', diluente: 'Bolsa 100 mL pronta', tempo: '30 min' },
+            doseRenal: { valor: '500', unidade: 'mg', horario: '12/12h', via: 'EV', diluente: 'Bolsa 100 mL pronta', tempo: '30 min', obs: 'ClCr < 10 mL/min: reduzir frequência para 12/12h.' }
           }
-        ]
+        ],
+        observacoes: 'Desbridamento de tecidos necróticos e alívio de carga plantar são obrigatórios.'
       }
     ]
   },
   '3': {
     title: 'Infecção em Queimados',
     subtitle: 'Protocolos de sepse precoce vs tardia em grandes queimados',
-    icon: 'Flame',
-    schemes: [
+    patologias: [
       {
-        id: 'queimados-sepse-precoce',
-        nome: 'Sepse Precoce SEM Infecção no Local (< 72 horas)',
-        foco: 'Colonização inicial por flora endógena cutânea (S. aureus, Streptococcus)',
-        dosePadrao: 'Ceftriaxone 2g EV 24/24h + Oxacilina 2g EV 4/4h.',
-        doseAjusteRenal: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Ceftriaxone + Oxacilina)',
-        farmacos: ['Ceftriaxona', 'Oxacilina'],
-        observacoes: 'Queimados apresentam hiperfiltração nas primeiras 48-72h seguida de risco de LRA por rabdomiólise e hipovolemia. Monitorar diurese horária.',
-        detalhesAjuste: [
+        id: 'queimados-precoce',
+        nome: 'Sepse Precoce SEM Infecção no Local (< 72h)',
+        subtipo: 'Precoce (< 72h)',
+        foco: 'Flora endógena inicial cutânea (S. aureus, Streptococcus)',
+        dosePadraoTexto: 'Ceftriaxone + Oxacilina.',
+        doseAjusteRenalTexto: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Ceftriaxone + Oxacilina)',
+        antibioticosRecomendados: [
           {
-            farmaco: 'Oxacilina',
-            clcrFaixas: [
-              { faixa: 'ClCr > 10 mL/min', dose: '2g EV 4/4h' },
-              { faixa: 'ClCr ≤ 10 mL/min', dose: '1g a 2g EV 4/4h a 6/6h' }
-            ]
-          }
-        ]
-      },
-      {
-        id: 'queimados-sepse-tardia',
-        nome: 'Sepse Tardia SEM Infecção no Local (> 72 horas)',
-        foco: 'Patógenos nosocomiais multirresistentes (Pseudomonas aeruginosa, Acinetobacter, MRSA)',
-        dosePadrao: 'Piperacilina/Tazobactam 4,5g EV 6/6h (ou infusão estendida em 4h) + Vancomicina 15-20 mg/kg EV 12/12h (com ataque de 25-30 mg/kg).',
-        doseAjusteRenal: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Piperacilina/Tazobactam + Vancomicina)',
-        farmacos: ['Piperacilina/Tazobactam', 'Vancomicina'],
-        observacoes: 'Ajuste de dose de Vancomicina estritamente guiado por clearance e vancocinemia (alvo AUC/MIC 400-600 ou vale 15-20 mcg/mL).',
-        detalhesAjuste: [
-          {
-            farmaco: 'Piperacilina + Tazobactam',
-            clcrFaixas: [
-              { faixa: 'ClCr > 50 mL/min', dose: '4,5g EV 6/6h (infusão estendida em 4 horas)' },
-              { faixa: 'ClCr 20-50 mL/min', dose: '3,375g EV 6/6h OU 2,25g EV 6/6h' },
-              { faixa: 'ClCr < 20 mL/min', dose: '2,25g EV 8/8h' },
-              { faixa: 'Hemodiálise', dose: '2,25g EV 12/12h + dose suplementar de 0,75g pós-diálise' }
-            ]
+            id: 'ceftriaxona-qp',
+            nome: 'Ceftriaxona',
+            dosePadrao: { valor: '2', unidade: 'g', horario: '24/24h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min' },
+            doseRenal: { valor: '2', unidade: 'g', horario: '24/24h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min', obs: 'Manter dose plena.' }
           },
           {
-            farmaco: 'Vancomicina',
-            clcrFaixas: [
-              { faixa: 'ClCr > 50 mL/min', dose: 'Manter dose plena de manutenção conforme peso e monitorar vale' },
-              { faixa: 'ClCr 30-49 mL/min', dose: '15 mg/kg a cada 24 horas' },
-              { faixa: 'ClCr 10-29 mL/min', dose: '15 mg/kg a cada 48 horas' },
-              { faixa: 'ClCr < 10 mL/min / HD', dose: 'Dose de ataque 25 mg/kg e redosar apenas quando nível < 15-20 mcg/mL' }
-            ]
+            id: 'oxacilina-qp',
+            nome: 'Oxacilina',
+            dosePadrao: { valor: '2', unidade: 'g', horario: '4/4h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min' },
+            doseRenal: { valor: '1.5', unidade: 'g', horario: '6/6h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min', obs: 'Se ClCr < 10: 1g a 2g 6/6h.' }
           }
-        ]
+        ],
+        observacoes: 'Grandes queimados podem ter hiperfiltração nas primeiras 48h seguida de LRA.'
+      },
+      {
+        id: 'queimados-tardia',
+        nome: 'Sepse Tardia SEM Infecção no Local (> 72h)',
+        subtipo: 'Tardia (> 72h)',
+        foco: 'Patógenos nosocomiais multirresistentes (Pseudomonas aeruginosa, MRSA)',
+        dosePadraoTexto: 'Piperacilina/Tazobactan + Vancomicina.',
+        doseAjusteRenalTexto: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Piperacilina/Tazobactan + Vancomicina)',
+        antibioticosRecomendados: [
+          {
+            id: 'pip-tazo-qt',
+            nome: 'Piperacilina + Tazobactam',
+            dosePadrao: { valor: '4.5', unidade: 'g', horario: '6/6h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: 'Infusão Estendida (4h)' },
+            doseRenal: { valor: '3.375', unidade: 'g', horario: '6/6h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: 'Infusão Estendida (4h)', obs: 'ClCr 20-50 mL/min: 3,375g 6/6h OU 2,25g 6/6h. ClCr < 20: 2,25g 8/8h.' }
+          },
+          {
+            id: 'vancomicina-qt',
+            nome: 'Vancomicina',
+            dosePadrao: { valor: '25-30', unidade: 'mg/kg', horario: '12/12h', via: 'EV', diluente: '250 mL SF 0,9%', tempo: '60-120 min' },
+            doseRenal: { valor: '15', unidade: 'mg/kg', horario: '24/24h', via: 'EV', diluente: '250 mL SF 0,9%', tempo: '60-120 min', obs: 'Dose de ataque 25-30 mg/kg não reduzida. Manutenção ClCr 30-50: 15 mg/kg 24/24h.' }
+          }
+        ],
+        observacoes: 'Ajuste estrito de Vancomicina por vancocinemia sérica (alvo vale 15-20 mcg/mL).'
       }
     ]
   },
   '4': {
     title: 'Trato Respiratório',
     subtitle: 'Pneumonia adquirida na comunidade e intra-hospitalar',
-    icon: 'Stethoscope',
-    schemes: [
+    patologias: [
       {
-        id: 'resp-sem-pseudomonas',
+        id: 'resp-sem-pseudo',
         nome: 'Pneumonia Adulto SEM Risco para Pseudomonas',
-        foco: 'Streptococcus pneumoniae, Haemophilus influenzae, atípicos',
-        dosePadrao: 'Ceftriaxona 2g EV 24/24h + Azitromicina 500mg EV 24/24h por 7-10 dias.',
-        doseAjusteRenal: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Ceftriaxona + Azitromicina)',
-        farmacos: ['Ceftriaxona', 'Azitromicina'],
-        observacoes: 'Trocar para via oral assim que paciente apresentar estabilidade clínica (afebril > 48h e tolerando VO).',
-        detalhesAjuste: [
+        subtipo: 'Comunitária Grave',
+        foco: 'Streptococcus pneumoniae, Haemophilus influenzae, germes atípicos',
+        dosePadraoTexto: 'Ceftriaxona 2g EV 24/24h + Azitromicina 500mg EV 24/24h por 7-10 dias.',
+        doseAjusteRenalTexto: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Ceftriaxona + Azitromicina)',
+        antibioticosRecomendados: [
           {
-            farmaco: 'Ceftriaxona',
-            clcrFaixas: [
-              { faixa: 'ClCr ≥ 10 mL/min', dose: '2g EV 24/24h' },
-              { faixa: 'ClCr < 10 mL/min', dose: '1g a 2g EV 24/24h' }
-            ]
+            id: 'ceftriaxona-pac',
+            nome: 'Ceftriaxona',
+            dosePadrao: { valor: '2', unidade: 'g', horario: '24/24h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min' },
+            doseRenal: { valor: '2', unidade: 'g', horario: '24/24h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min', obs: 'Dose plena 2g 24/24h.' }
+          },
+          {
+            id: 'azitromicina-pac',
+            nome: 'Azitromicina',
+            dosePadrao: { valor: '500', unidade: 'mg', horario: '24/24h', via: 'EV', diluente: '250 mL SF 0,9%', tempo: '60 min' },
+            doseRenal: { valor: '500', unidade: 'mg', horario: '24/24h', via: 'EV', diluente: '250 mL SF 0,9%', tempo: '60 min', obs: 'Eliminação biliar. Sem ajuste renal.' }
           }
-        ]
+        ],
+        observacoes: 'Avaliar transição para VO assim que o paciente mantiver estabilidade hemodinâmica e afebril > 48h.'
       },
       {
-        id: 'resp-com-pseudomonas',
+        id: 'resp-com-pseudo',
         nome: 'Pneumonia Adulto COM Risco para Pseudomonas (Sem ATB Prévio)',
-        foco: 'Pseudomonas aeruginosa, enterobactérias produtoras de AmpC',
-        dosePadrao: 'Ceftazidima 2g EV 8/8h (infusão estendida de 3h preferível).',
-        doseAjusteRenal: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármaco: Ceftazidima)',
-        farmacos: ['Ceftazidima'],
-        observacoes: 'Fatores de risco para Pseudomonas: bronquiectasias, DPOC grave, corticoterapia prévia, internação recente com uso de ATB.',
-        detalhesAjuste: [
+        subtipo: 'Risco Nosocomial',
+        foco: 'Pseudomonas aeruginosa, bacilos Gram-negativos produtores de AmpC',
+        dosePadraoTexto: 'Ceftazidima 2g EV 8/8h.',
+        doseAjusteRenalTexto: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármaco: Ceftazidima)',
+        antibioticosRecomendados: [
           {
-            farmaco: 'Ceftazidima',
-            clcrFaixas: [
-              { faixa: 'ClCr > 50 mL/min', dose: '2g EV 8/8h' },
-              { faixa: 'ClCr 31-50 mL/min', dose: '1g EV 8/8h ou 2g EV 12/12h' },
-              { faixa: 'ClCr 16-30 mL/min', dose: '1g EV 12/12h' },
-              { faixa: 'ClCr 6-15 mL/min', dose: '500mg EV 24/24h' },
-              { faixa: 'ClCr < 6 mL/min / HD', dose: '500mg EV 48/48h ou após cada sessão de hemodiálise' }
-            ]
+            id: 'ceftazidima-pnas',
+            nome: 'Ceftazidima',
+            dosePadrao: { valor: '2', unidade: 'g', horario: '8/8h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: 'Infusão Estendida (3h)' },
+            doseRenal: { valor: '1', unidade: 'g', horario: '8/8h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: 'Infusão Estendida (3h)', obs: 'ClCr 31-50 mL/min: 1g 8/8h ou 2g 12/12h. ClCr 16-30: 1g 12/12h.' }
           }
-        ]
+        ],
+        observacoes: 'Fatores de risco: bronquiectasias, DPOC com uso frequente de corticoides/ATB, internação prévia.'
       }
     ]
   },
   '5': {
     title: 'Sepse e Choque Séptico',
-    subtitle: 'Protocolo de Ressuscitação da 1ª Hora ("Hour-1 Bundle")',
-    icon: 'ShieldAlert',
-    schemes: [
+    subtitle: 'Ressuscitação da 1ª Hora (Hour-1 Bundle)',
+    patologias: [
       {
         id: 'sepse-pulmonar',
         nome: 'Sepse com Foco Pulmonar (Comunitário)',
-        foco: 'Streptococcus pneumoniae, Legionella, Bacilos Gram-negativos',
-        dosePadrao: 'Ceftriaxone 2g EV 24/24h + Macrolídeo EV (Azitromicina 500mg EV 24/24h ou Claritromicina 500mg EV 12/12h).',
-        doseAjusteRenal: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Ceftriaxone + Macrolídeo)',
-        farmacos: ['Ceftriaxona', 'Azitromicina'],
-        observacoes: 'A 1ª dose de antibiótico deve ser administrada em dose PLENA mesmo se disfunção renal presente, iniciando ajuste a partir da 2ª dose.',
-        detalhesAjuste: [
+        subtipo: 'Hour-1 Bundle',
+        foco: 'S. pneumoniae, Legionella, bacilos entéricos Gram-negativos',
+        dosePadraoTexto: 'Ceftriaxone 2g EV 24/24h + Macrolídeo EV (Azitromicina 500mg).',
+        doseAjusteRenalTexto: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Ceftriaxone + Macrolídeo)',
+        antibioticosRecomendados: [
           {
-            farmaco: 'Ceftriaxona',
-            clcrFaixas: [
-              { faixa: '1ª Dose (Ataque)', dose: '2g EV imediato (NÃO REDUZIR DOSE DE ATAQUE NA SEPSE)' },
-              { faixa: 'ClCr < 10 mL/min (Manutenção)', dose: '1g a 2g EV a cada 24 horas' }
-            ]
+            id: 'ceftriaxona-sp',
+            nome: 'Ceftriaxona',
+            dosePadrao: { valor: '2', unidade: 'g', horario: '24/24h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min' },
+            doseRenal: { valor: '2', unidade: 'g', horario: '24/24h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min', obs: '1ª dose deve ser PLENA na sepse mesmo se falência renal.' }
+          },
+          {
+            id: 'azitromicina-sp',
+            nome: 'Azitromicina',
+            dosePadrao: { valor: '500', unidade: 'mg', horario: '24/24h', via: 'EV', diluente: '250 mL SF 0,9%', tempo: '60 min' },
+            doseRenal: { valor: '500', unidade: 'mg', horario: '24/24h', via: 'EV', diluente: '250 mL SF 0,9%', tempo: '60 min', obs: 'Dose plena mantida.' }
           }
-        ]
+        ],
+        observacoes: 'A primeira dose em paciente séptico deve ser administrada na 1ª hora em dose máxima.'
       },
       {
         id: 'sepse-abdominal',
         nome: 'Sepse com Foco Abdominal (Comunitário)',
-        foco: 'Enterobacteriaceae (E. coli, Klebsiella), Enterococcus e anaeróbios (B. fragilis)',
-        dosePadrao: 'Ceftriaxone 2g EV 24/24h + Metronidazol 500mg EV 8/8h.',
-        doseAjusteRenal: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Ceftriaxone + Metronidazol)',
-        farmacos: ['Ceftriaxona', 'Metronidazol'],
-        observacoes: 'Controle de foco cirúrgico urgente é indispensável para sucesso do tratamento na sepse abdominal.',
-        detalhesAjuste: [
+        subtipo: 'Hour-1 Bundle',
+        foco: 'Enterobacteriaceae (E. coli, Klebsiella), Enterococcus e anaeróbios (Bacteroides fragilis)',
+        dosePadraoTexto: 'Ceftriaxone 2g EV 24/24h + Metronidazol 500mg EV 8/8h.',
+        doseAjusteRenalTexto: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Ceftriaxone + Metronidazol)',
+        antibioticosRecomendados: [
           {
-            farmaco: 'Metronidazol',
-            clcrFaixas: [
-              { faixa: 'ClCr ≥ 10 mL/min', dose: '500mg EV 8/8h' },
-              { faixa: 'ClCr < 10 mL/min', dose: '500mg EV 12/12h (reduzir frequência em 50%)' }
-            ]
+            id: 'ceftriaxona-sa',
+            nome: 'Ceftriaxona',
+            dosePadrao: { valor: '2', unidade: 'g', horario: '24/24h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min' },
+            doseRenal: { valor: '2', unidade: 'g', horario: '24/24h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: '30 min', obs: 'Dose plena de ataque 2g mantida.' }
+          },
+          {
+            id: 'metronidazol-sa',
+            nome: 'Metronidazol',
+            dosePadrao: { valor: '500', unidade: 'mg', horario: '8/8h', via: 'EV', diluente: 'Bolsa 100 mL pronta', tempo: '30 min' },
+            doseRenal: { valor: '500', unidade: 'mg', horario: '12/12h', via: 'EV', diluente: 'Bolsa 100 mL pronta', tempo: '30 min', obs: 'ClCr < 10 mL/min: estender intervalo para 12/12h.' }
           }
-        ]
+        ],
+        observacoes: 'Controle de foco cirúrgico urgente é indispensável.'
       },
       {
         id: 'sepse-corrente-sanguinea',
         nome: 'Sepse com Foco em Corrente Sanguínea (Cateter)',
-        foco: 'Staphylococcus aureus (incluindo MRSA), S. epidermidis, Pseudomonas, BGN multirresistentes',
-        dosePadrao: 'Retirar o dispositivo imediatamente e iniciar Vancomicina 30mg/kg EV (dose de ataque) + Cefepime 2g EV 8/8h.',
-        doseAjusteRenal: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Vancomicina + Cefepime)',
-        farmacos: ['Vancomicina', 'Cefepime'],
-        observacoes: 'Coletar 2 pares de hemoculturas (periférica + cateter antes de retirar se possível). Dose de ataque de Vancomicina não deve ser reduzida na sepse.',
-        detalhesAjuste: [
+        subtipo: 'Hour-1 Bundle',
+        foco: 'S. aureus (MRSA), Staphylococcus coagulase-negativa, P. aeruginosa',
+        dosePadraoTexto: 'Retirar o dispositivo e iniciar Vancomicina 30mg/kg EV (ataque) + Cefepime 2g EV 8/8h.',
+        doseAjusteRenalTexto: '[AJUSTAR DOSE CONFORME FUNÇÃO RENAL] (Fármacos: Vancomicina + Cefepime)',
+        antibioticosRecomendados: [
           {
-            farmaco: 'Cefepime',
-            clcrFaixas: [
-              { faixa: 'ClCr > 50 mL/min', dose: '2g EV 8/8h (infusão estendida em 3-4h)' },
-              { faixa: 'ClCr 30-50 mL/min', dose: '2g EV 12/12h' },
-              { faixa: 'ClCr 11-29 mL/min', dose: '1g a 2g EV 24/24h' },
-              { faixa: 'ClCr ≤ 10 mL/min', dose: '500mg a 1g EV 24/24h' },
-              { faixa: 'Hemodiálise', dose: '1g no dia 1, depois 500mg/dia + dose extra pós-diálise (risco de neurotoxicidade se não ajustado)' }
-            ]
+            id: 'vancomicina-sc',
+            nome: 'Vancomicina',
+            dosePadrao: { valor: '25-30', unidade: 'mg/kg', horario: '12/12h', via: 'EV', diluente: '250 mL SF 0,9%', tempo: '60-120 min' },
+            doseRenal: { valor: '15', unidade: 'mg/kg', horario: '24/24h', via: 'EV', diluente: '250 mL SF 0,9%', tempo: '60-120 min', obs: 'Dose de ataque integral (25-30 mg/kg). Manutenção ClCr 30-50: 15 mg/kg a cada 24h.' }
           },
           {
-            farmaco: 'Vancomicina',
-            clcrFaixas: [
-              { faixa: 'Dose de Ataque', dose: '25-30 mg/kg EV (máx: 3000mg) - dose integral obrigatória' },
-              { faixa: 'ClCr 30-50 mL/min', dose: '15 mg/kg EV 24/24h' },
-              { faixa: 'ClCr < 30 mL/min', dose: '15 mg/kg EV 48/48h ou dosagem sérica guiada' }
-            ]
+            id: 'cefepime-sc',
+            nome: 'Cefepime',
+            dosePadrao: { valor: '2', unidade: 'g', horario: '8/8h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: 'Infusão Estendida (3-4h)' },
+            doseRenal: { valor: '2', unidade: 'g', horario: '12/12h', via: 'EV', diluente: '100 mL SF 0,9%', tempo: 'Infusão Estendida (3-4h)', obs: 'ClCr 30-50: 2g 12/12h. ClCr 11-29: 1g 24/24h. Risco de neurotoxicidade grave se não corrigido!' }
           }
-        ]
+        ],
+        observacoes: 'Retirar cateter suspeito e coletar hemoculturas pareadas (cateter + periférica).'
       }
     ]
   }

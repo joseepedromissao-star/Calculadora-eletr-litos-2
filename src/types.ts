@@ -17,6 +17,45 @@ export interface CalculatorMeta {
   badge?: string;
 }
 
+// Conduct Option definition for each calculator
+export interface ConductOption {
+  id: string;
+  title: string;
+  tag?: string;
+  description: string;
+  prescriptionText: string;
+  justificationText?: string;
+}
+
+// Prescribed item in cumulative prescription (can contain electrolytes AND antimicrobials together!)
+export interface PrescribedItem {
+  id: string;
+  category: 'electrolyte' | 'antimicrobial' | 'metabolic' | 'gasometry';
+  title: string;
+  orderText: string;
+  justificationText: string;
+  parameters: string[];
+  addedAt: string;
+}
+
+export interface PatientPrescriptionInfo {
+  patientName: string;
+  bedNumber: string;
+  recordNumber: string;
+  physicianName: string;
+  crm: string;
+}
+
+export interface ActivePrescriptionData {
+  calculatorId: CalculatorId;
+  calculatorTitle: string;
+  parametersSummary: string[];
+  conductOptions: ConductOption[];
+  selectedConductId: string;
+  customPrescriptionOrder?: string;
+  antimicrobialsList?: PrescribedAntimicrobial[];
+}
+
 // Potassium Types
 export type PatientAgeGroup = 'adult' | 'pediatric';
 export type VenousAccess = 'peripheral' | 'central';
@@ -131,19 +170,34 @@ export interface AnionGapResult {
 export type PediatricProfile = '1' | '2' | '3' | '4'; // 1: prematuro, 2: RN termo, 3: crianca/fem, 4: adol masc
 export type InfectionTopography = '1' | '2' | '3' | '4' | '5'; // Olhos, Pele/Partes Moles, Queimados, Respiratório, Sepse
 
-export interface AntimicrobialScheme {
+export interface PathologyScheme {
+  id: string;
+  nome: string; // Ex: Conjuntivite Neonatal, Celulite Orbital, Pneumonia sem risco de Pseudomonas, etc.
+  subtipo?: string;
+  foco: string;
+  dosePadraoTexto: string;
+  doseAjusteRenalTexto: string;
+  antibioticosRecomendados: {
+    id: string;
+    nome: string;
+    dosePadrao: { valor: string; unidade: string; horario: string; via: string; diluente: string; tempo: string };
+    doseRenal: { valor: string; unidade: string; horario: string; via: string; diluente: string; tempo: string; obs: string };
+  }[];
+  observacoes: string;
+}
+
+export interface PrescribedAntimicrobial {
   id: string;
   nome: string;
-  foco: string;
-  dosePadrao: string;
-  doseAjusteRenal: string;
-  farmacos: string[];
-  observacoes?: string;
-  detalhesAjuste?: {
-    farmaco: string;
-    clcrFaixas: {
-      faixa: string;
-      dose: string;
-    }[];
-  }[];
+  patologiaId?: string;
+  patologiaNome?: string;
+  doseValor: string;
+  doseUnidade: string; // 'g', 'mg', 'mg/kg'
+  horario: string; // '6/6h', '8/8h', '12/12h', '24/24h', '48/48h', 'Dose única'
+  via: string; // 'EV', 'VO', 'IM'
+  tempoInfusao?: string; // '30 min', '60 min', 'Infusão Estendida (3-4h)'
+  diluente: string; // '100 mL SF 0,9%', '250 mL SF 0,9%', '100 mL SG 5%', 'Sem diluente / Puro'
+  ajustadoParaTfg: boolean;
+  justificativaAjuste?: string;
+  selecionado: boolean;
 }
