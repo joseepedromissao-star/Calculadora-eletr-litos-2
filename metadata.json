@@ -1,0 +1,6 @@
+{
+  "name": "MedCalc Suíte Clínica",
+  "description": "Suíte médica completa de calculadoras para reposição de eletrólitos (KCl, NaCl, NaHCO3), gasometria arterial, sódio corrigido, osmolaridade, ânion gap e ajuste de antimicrobianos por TFG.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
