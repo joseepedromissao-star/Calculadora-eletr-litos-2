@@ -168,7 +168,22 @@ export interface AnionGapResult {
 
 // GFR & Antimicrobial
 export type PediatricProfile = '1' | '2' | '3' | '4'; // 1: prematuro, 2: RN termo, 3: crianca/fem, 4: adol masc
-export type InfectionTopography = '1' | '2' | '3' | '4' | '5'; // Olhos, Pele/Partes Moles, Queimados, Respiratório, Sepse
+export type InfectionTopography =
+  | '1' // Olhos
+  | '2' // Pele e Partes Moles
+  | '3' // Infecção em Queimados
+  | '4' // Trato Respiratório
+  | '5' // Sepse e Choque Séptico
+  | '6' // Trato Urinário (ITU)
+  | '7' // Sistema Nervoso Central (SNC / Meningites)
+  | '8' // Intra-Abdominal e Gastrointestinal
+  | '9' // Cardiovascular (Endocardite)
+  | '10' // Ossos e Articulações (Osteoarticular)
+  | '11' // Cabeça, Pescoço e Otorrinolaringologia
+  | '12' // Ginecológico, Pélvico e ISTs
+  | '13' // Neutropenia Febril e Imunossuprimidos
+  | '14' // Infecções Fúngicas Invasivas
+  | '15'; // Profilaxia Cirúrgica Antimicrobiana
 
 export interface PathologyScheme {
   id: string;

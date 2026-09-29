@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, Check, Printer, X, ShieldCheck, FileCheck, Trash2, Plus, Calendar, User, Bed, Stethoscope, FileText } from 'lucide-react';
+import { Copy, Check, Printer, X, ShieldCheck, FileCheck, Trash2, Plus, Calendar, User, Bed, Stethoscope, FileText, Download } from 'lucide-react';
 import { ActivePrescriptionData, PrescribedItem, PatientPrescriptionInfo } from '../types';
 
 interface PrescriptionExportModalProps {
@@ -25,8 +25,6 @@ export const PrescriptionExportModal: React.FC<PrescriptionExportModalProps> = (
 }) => {
   const [activeTab, setActiveTab] = useState<'preview' | 'frente' | 'verso'>('preview');
   const [copied, setCopied] = useState(false);
-
-  if (!isOpen) return null;
 
   const currentDate = new Date().toLocaleDateString('pt-BR', {
     day: '2-digit',
@@ -65,7 +63,7 @@ export const PrescriptionExportModal: React.FC<PrescriptionExportModalProps> = (
     `Paciente: ${patientInfo.patientName || 'Não identificado'} | Leito: ${patientInfo.bedNumber || 'CTI/Emergência'} | Pront: ${patientInfo.recordNumber || 'S/N'}`,
     `Médico(a): ${patientInfo.physicianName || 'Médico Assistente'} | CRM: ${patientInfo.crm || 'Não informado'}`,
     `----------------------------------------------------------------------`,
-    `[FRENTE] ITENS DA PRESCRIÇÃO MÉDICA:`,
+    `[FRENTE] ITENS DA PRESCRIÇÃO MÉDICA (ELETRÓLITOS & ANTIMICROBIANOS):`,
     ...itemsToRender.map((it, idx) => `ITEM ${idx + 1}: ${it.title}\n${it.orderText}\n`),
     `----------------------------------------------------------------------`,
     `[VERSO] EVOLUÇÃO CLÍNICA & JUSTIFICATIVA FARMACOLÓGICA:`,
@@ -79,6 +77,19 @@ export const PrescriptionExportModal: React.FC<PrescriptionExportModalProps> = (
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleDownload = () => {
+    const blob = new Blob([plainTextReport], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const sanitizedName = patientInfo.patientName ? patientInfo.patientName.trim().replace(/\s+/g, '_') : 'Paciente';
+    a.download = `Prescricao_JN_Suite_Clinica_${sanitizedName}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -86,28 +97,29 @@ export const PrescriptionExportModal: React.FC<PrescriptionExportModalProps> = (
   return (
     <>
       {/* Interactive Modal (hidden during print) */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs no-print">
-        <div className="bg-white rounded-2xl max-w-3xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 duration-150 max-h-[92vh] flex flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-emerald-100 text-emerald-800 rounded-lg">
-                <FileCheck className="w-5 h-5" />
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs no-print">
+          <div className="bg-white rounded-2xl max-w-3xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 duration-150 max-h-[92vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-emerald-100 text-emerald-800 rounded-lg">
+                  <FileCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 leading-tight">
+                    Prescrição Médica & Evolução Clínica (PDF Frente e Verso)
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    JN Suíte Clínica · Calculadora médica
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-base font-bold text-slate-900 leading-tight">
-                  Prescrição Médica & Evolução Clínica (PDF Frente e Verso)
-                </h3>
-                <p className="text-xs text-slate-500">
-                  JN Suíte Clínica · Calculadora médica
-                </p>
-              </div>
-            </div>
 
-            <button
-              onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
-            >
+              <button
+                onClick={onClose}
+                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+              >
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -357,6 +369,15 @@ export const PrescriptionExportModal: React.FC<PrescriptionExportModalProps> = (
               </button>
 
               <button
+                onClick={handleDownload}
+                className="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors flex items-center gap-1.5"
+                title="Baixar arquivo de texto com a prescrição e evolução"
+              >
+                <Download className="w-3.5 h-3.5 text-slate-600" />
+                <span>Baixar (.txt)</span>
+              </button>
+
+              <button
                 onClick={handlePrint}
                 className="px-4 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"
               >
@@ -367,13 +388,14 @@ export const PrescriptionExportModal: React.FC<PrescriptionExportModalProps> = (
           </div>
         </div>
       </div>
+      )}
 
       {/* DEDICATED PRINT DOCUMENT (Visible ONLY when printing to paper or PDF!) */}
-      <div className="print-only hidden font-sans text-slate-900 p-4">
+      <div className="print-only font-sans text-slate-900 p-2">
         {/* ========================================================= */}
         {/* PAGE 1: FRENTE - PRESCRIÇÃO MÉDICA HOSPITALAR             */}
         {/* ========================================================= */}
-        <div className="min-h-[260mm] flex flex-col justify-between">
+        <div className="print-page flex flex-col justify-between">
           <div>
             {/* Header */}
             <div className="border-b-2 border-slate-900 pb-3 mb-4 flex items-center justify-between">
@@ -437,7 +459,7 @@ export const PrescriptionExportModal: React.FC<PrescriptionExportModalProps> = (
         {/* ========================================================= */}
         {/* PAGE 2: VERSO - EVOLUÇÃO CLÍNICA & JUSTIFICATIVA          */}
         {/* ========================================================= */}
-        <div className="min-h-[260mm] flex flex-col justify-between pt-4">
+        <div className="print-page flex flex-col justify-between pt-4">
           <div>
             {/* Header */}
             <div className="border-b-2 border-slate-900 pb-3 mb-4 flex items-center justify-between">

@@ -10,30 +10,55 @@
   font-family: 'JetBrains Mono', monospace;
 }
 
+/* Hidden by default on screen */
+.print-only {
+  display: none;
+}
+
 @media print {
   @page {
     size: A4 portrait;
-    margin: 12mm 15mm;
+    margin: 10mm 12mm;
   }
 
-  body {
-    background-color: white !important;
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
     color: #0f172a !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    font-size: 10.5pt !important;
   }
 
-  .no-print {
+  .no-print,
+  .no-print * {
     display: none !important;
   }
 
   .print-only {
     display: block !important;
+    width: 100% !important;
+  }
+
+  .print-page {
+    box-sizing: border-box !important;
+    min-height: 255mm !important;
+    max-height: 265mm !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   .print-page-break {
-    break-before: page !important;
     page-break-before: always !important;
+    break-before: page !important;
     clear: both !important;
+    display: block !important;
+    height: 1px !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 }

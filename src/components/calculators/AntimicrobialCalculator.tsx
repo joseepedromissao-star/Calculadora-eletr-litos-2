@@ -25,7 +25,15 @@ import {
   Pill,
   FileText,
   Plus,
-  Info
+  Info,
+  Droplets,
+  Activity,
+  HeartPulse,
+  Shield,
+  Heart,
+  Microscope,
+  Scissors,
+  Printer
 } from 'lucide-react';
 
 interface ConfiguredAntibiotic {
@@ -379,17 +387,33 @@ export const AntimicrobialCalculator: React.FC<AntimicrobialCalculatorProps> = (
 
       {/* Topography Selector Tabs */}
       <div>
-        <label className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-2">
-          1. Selecione a Topografia da Infecção
-        </label>
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            1. Selecione a Topografia da Infecção (15 Topografias Clínicas)
+          </label>
+          <span className="text-xs text-slate-400 font-mono">
+            {Object.keys(TOPOGRAPHY_MAP).length} topografias ativas
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
           {(
             [
-              { id: '1', title: '1. Olhos', icon: Eye },
-              { id: '2', title: '2. Pele / Partes Moles', icon: Layers },
-              { id: '3', title: '3. Queimados', icon: Flame },
-              { id: '4', title: '4. Trato Respiratório', icon: Stethoscope },
-              { id: '5', title: '5. Sepse & Choque', icon: ShieldAlert }
+              { id: '1', title: '1. Olhos', sub: 'Ocular / Órbita', icon: Eye },
+              { id: '2', title: '2. Pele / Partes Moles', sub: 'Celulite, pé diabético', icon: Layers },
+              { id: '3', title: '3. Queimados', sub: 'Sepse precoce / tardia', icon: Flame },
+              { id: '4', title: '4. Respiratório', sub: 'PAC / PNAV / Aspirativa', icon: Stethoscope },
+              { id: '5', title: '5. Sepse & Choque', sub: 'Hour-1 Bundle', icon: ShieldAlert },
+              { id: '6', title: '6. Trato Urinário', sub: 'Cistite / Pielo / Urossepse', icon: Droplets },
+              { id: '7', title: '7. SNC / Meningite', sub: 'Comunitária / Hospitalar', icon: Activity },
+              { id: '8', title: '8. Intra-Abdominal', sub: 'Peritonite / C. difficile', icon: AlertTriangle },
+              { id: '9', title: '9. Cardiovascular', sub: 'Endocardite infecciosa', icon: HeartPulse },
+              { id: '10', title: '10. Osteoarticular', sub: 'Artrite / Osteomielite', icon: Shield },
+              { id: '11', title: '11. Cabeça / Otorrino', sub: 'Ludwig / Mastoidite', icon: Stethoscope },
+              { id: '12', title: '12. Ginecológico / IST', sub: 'DIP grave / Cervicite', icon: Heart },
+              { id: '13', title: '13. Neutropenia Febril', sub: 'Alto risco oncológico', icon: ShieldAlert },
+              { id: '14', title: '14. Fúngica Invasiva', sub: 'Candidemia em CTI', icon: Microscope },
+              { id: '15', title: '15. Profilaxia Cirúrgica', sub: 'Prevenção de ISC', icon: Scissors }
             ] as const
           ).map((item) => {
             const Icon = item.icon;
@@ -400,17 +424,27 @@ export const AntimicrobialCalculator: React.FC<AntimicrobialCalculatorProps> = (
                 type="button"
                 onClick={() => {
                   setTopografia(item.id);
-                  const firstPat = TOPOGRAPHY_MAP[item.id].patologias[0];
+                  const firstPat = TOPOGRAPHY_MAP[item.id]?.patologias[0];
                   if (firstPat) setSelectedPatologiaId(firstPat.id);
                 }}
-                className={`p-3 text-left rounded-xl border transition-all ${
+                className={`p-2.5 text-left rounded-xl border transition-all flex flex-col justify-between ${
                   isSelected
-                    ? 'border-slate-900 bg-slate-900 text-white shadow-xs'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                    ? 'border-slate-900 bg-slate-900 text-white shadow-xs ring-1 ring-slate-900'
+                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
                 }`}
               >
-                <Icon className="w-4 h-4 mb-1.5 opacity-85" />
-                <div className="text-xs font-bold leading-tight">{item.title}</div>
+                <div className="flex items-center justify-between w-full mb-1">
+                  <Icon className={`w-4 h-4 ${isSelected ? 'text-emerald-400' : 'text-slate-500'}`} />
+                  <span className={`text-[10px] font-mono px-1 rounded ${isSelected ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-500'}`}>
+                    #{item.id}
+                  </span>
+                </div>
+                <div>
+                  <div className="text-xs font-bold leading-tight line-clamp-1">{item.title}</div>
+                  <span className={`text-[10px] block leading-tight mt-0.5 line-clamp-1 ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
+                    {item.sub}
+                  </span>
+                </div>
               </button>
             );
           })}
@@ -730,6 +764,17 @@ export const AntimicrobialCalculator: React.FC<AntimicrobialCalculatorProps> = (
                 >
                   <FileText className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Abrir Prescrição Completa</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    handleAddToCombinedPrescription();
+                    onOpenPrescriptionModal();
+                  }}
+                  className="w-full sm:w-auto px-4 py-2 text-xs font-bold text-emerald-950 bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+                >
+                  <Printer className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>Imprimir / Gerar PDF</span>
                 </button>
               </div>
             </div>
